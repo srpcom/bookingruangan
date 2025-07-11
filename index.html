@@ -14,20 +14,16 @@
             --arc-blue: #00b8ff;
             --dark-bg: #101419;
             --text-light: #f0f0f0;
-            --text-dark: #333;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
-            padding: 2rem 1rem;
+            padding: 1rem; /* Padding untuk mobile */
             min-height: 100vh;
             color: var(--text-light);
-            
-            /* --- PERUBAHAN BACKGROUND --- */
-            /* Lapisan gelap ditambahkan di atas gambar untuk meningkatkan keterbacaan */
             background: 
-                linear-gradient(rgba(16, 20, 25, 0.8), rgba(16, 20, 25, 0.8)),
+                linear-gradient(rgba(16, 20, 25, 0.85), rgba(16, 20, 25, 0.85)),
                 url('https://raw.githubusercontent.com/srpcom/bookingruangan/main/photo_2025-07-11_16-49-46.jpg');
             background-size: cover;
             background-position: center;
@@ -37,47 +33,42 @@
         .container {
             max-width: 1200px;
             margin: auto;
-            padding: 2rem;
+            padding: 0;
         }
 
         header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
 
         header h1 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: var(--iron-gold);
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.7); /* Shadow diperkuat */
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
             margin: 0;
         }
 
         header p {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--text-light);
             opacity: 0.9;
         }
 
+        /* --- Tata Letak Utama (Mobile First) --- */
         .main-content {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem; /* Jarak antara form dan jadwal */
         }
 
-        @media (min-width: 992px) {
-            .main-content {
-                grid-template-columns: 400px 1fr;
-            }
-        }
-
-        /* --- Efek Glassmorphism Disesuaikan --- */
+        /* --- Efek Glassmorphism --- */
         .glass-card {
-            background: rgba(20, 30, 40, 0.75); /* Opacity ditingkatkan */
+            background: rgba(20, 30, 40, 0.75);
             backdrop-filter: blur(12px) saturate(180%);
             -webkit-backdrop-filter: blur(12px) saturate(180%);
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 1.5rem 2rem;
+            padding: 1.5rem;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
@@ -86,18 +77,11 @@
             border-bottom: 2px solid var(--iron-red);
             padding-bottom: 0.5rem;
             margin-top: 0;
+            font-size: 1.5rem;
         }
 
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 0.75rem;
@@ -109,17 +93,12 @@
             box-sizing: border-box;
             transition: all 0.3s ease;
         }
-
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: var(--arc-blue);
             box-shadow: 0 0 10px var(--arc-blue);
         }
-        
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
 
         .btn-submit {
             width: 100%;
@@ -134,35 +113,17 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
         }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(200, 42, 29, 0.4);
-        }
-        
-        .btn-submit:disabled {
-            background: #555;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(200, 42, 29, 0.4); }
+        .btn-submit:disabled { background: #555; cursor: not-allowed; opacity: 0.7; }
 
         .schedule-rooms {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: 1fr; /* Satu kolom di mobile */
             gap: 1.5rem;
         }
 
-        .room-column {
-            background: rgba(0,0,0,0.2);
-            border-radius: 10px;
-            padding: 1rem;
-        }
-
-        .room-column h3 {
-            margin-top: 0;
-            color: var(--arc-blue);
-            text-align: center;
-        }
+        .room-column { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 1rem; }
+        .room-column h3 { margin-top: 0; color: var(--arc-blue); text-align: center; }
 
         .booking-item {
             background: rgba(10, 20, 30, 0.5);
@@ -172,56 +133,37 @@
             border-left: 4px solid var(--iron-gold);
             font-size: 0.9rem;
         }
-        
-        .booking-item p {
-            margin: 0.3rem 0;
-        }
-        
-        .booking-item .keperluan {
-            font-weight: bold;
-            color: var(--iron-gold);
-        }
+        .booking-item p { margin: 0.3rem 0; }
+        .booking-item .keperluan { font-weight: bold; color: var(--iron-gold); }
+        .booking-item .peminjam { font-style: italic; opacity: 0.8; }
 
-        .booking-item .peminjam {
-            font-style: italic;
-            opacity: 0.8;
-        }
-
-        /* Modal for notifications */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.6);
-            animation: fadeIn 0.3s;
-        }
-        .modal-content {
-            position: relative;
-            margin: 15% auto;
-            padding: 25px;
-            width: 90%;
-            max-width: 500px;
-            text-align: center;
-        }
+        /* Modal Notifikasi */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); animation: fadeIn 0.3s; }
+        .modal-content { position: relative; margin: 30% auto; padding: 25px; width: 90%; max-width: 500px; text-align: center; }
         .modal-content.success { border-top: 5px solid var(--arc-blue); }
         .modal-content.error { border-top: 5px solid var(--iron-red); }
-        .close-button {
-            color: #aaa;
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        @keyframes fadeIn {
-            from {opacity: 0}
-            to {opacity: 1}
+        .close-button { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
+        @keyframes fadeIn { from {opacity: 0} to {opacity: 1} }
+
+        /* --- Tampilan Desktop (Layar Lebih Lebar) --- */
+        @media (min-width: 992px) {
+            body {
+                padding: 2rem;
+            }
+            .container {
+                padding: 2rem;
+            }
+            header h1 {
+                font-size: 2.5rem;
+            }
+            .main-content {
+                display: grid;
+                grid-template-columns: 400px 1fr;
+                gap: 2rem;
+            }
+            .schedule-rooms {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
         }
     </style>
 </head>
@@ -340,7 +282,6 @@
         function renderSchedule(data) {
             scheduleContainer.innerHTML = ''; // Clear again to be safe
 
-            // Sort data by start date
             data.sort((a, b) => new Date(`${a['Tanggal Mulai']}T${a['Waktu Mulai']}`) - new Date(`${b['Tanggal Mulai']}T${b['Waktu Mulai']}`));
 
             rooms.forEach(room => {
@@ -420,9 +361,7 @@
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
                     redirect: 'follow',
-                    headers: {
-                      'Content-Type': 'text/plain;charset=utf-8',
-                    },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(bookingData)
                 });
 
@@ -431,9 +370,8 @@
                 if (result.status === 'success') {
                     showModal(result.message, 'success');
                     form.reset();
-                    fetchSchedule(); // Refresh schedule on success
+                    fetchSchedule();
                 } else {
-                    // Show specific error from server (e.g., conflict message)
                     showModal(result.message, 'error');
                 }
 
