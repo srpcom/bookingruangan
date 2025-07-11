@@ -4,338 +4,446 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Booking Ruang Rapat - RSUD dr. R. Koesma</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --iron-red: #c82a1d;
+            --iron-gold: #f8d452;
+            --arc-blue: #00b8ff;
+            --dark-bg: #101419;
+            --text-light: #f0f0f0;
+            --text-dark: #333;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(to right, #1f4037, #99f2c8);
-            color: #e0e0e0;
+            margin: 0;
+            padding: 2rem 1rem;
+            background-color: var(--dark-bg);
+            background-image: url('https://www.pixelstalk.net/wp-content/uploads/2016/05/Iron-Man-Backgrounds-HD.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-light);
+            min-height: 100vh;
         }
-        .glass-card, .glass-modal {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: var(--iron-gold);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin: 0;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 992px) {
+            .main-content {
+                grid-template-columns: 400px 1fr;
+            }
+        }
+
+        /* --- Efek Glassmorphism --- */
+        .glass-card {
+            background: rgba(20, 30, 40, 0.6);
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .form-card h2, .schedule-card h2 {
+            color: var(--iron-gold);
+            border-bottom: 2px solid var(--iron-red);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 1rem;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            background-color: rgba(0,0,0,0.3);
+            color: var(--text-light);
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
         }
-        .modal-backdrop {
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--arc-blue);
+            box-shadow: 0 0 10px var(--arc-blue);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-light);
+            background: linear-gradient(45deg, var(--iron-red), #a01010);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(200, 42, 29, 0.4);
+        }
+        
+        .btn-submit:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .schedule-rooms {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .room-column {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .room-column h3 {
+            margin-top: 0;
+            color: var(--arc-blue);
+            text-align: center;
+        }
+
+        .booking-item {
+            background: rgba(10, 20, 30, 0.5);
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--iron-gold);
+            font-size: 0.9rem;
+        }
+        
+        .booking-item p {
+            margin: 0.3rem 0;
+        }
+        
+        .booking-item .keperluan {
+            font-weight: bold;
+            color: var(--iron-gold);
+        }
+
+        .booking-item .peminjam {
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        /* Modal for notifications */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
             background-color: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s;
         }
-        /* Custom scrollbar for modal */
-        .glass-modal::-webkit-scrollbar {
-            width: 8px;
+        .modal-content {
+            position: relative;
+            margin: 15% auto;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
         }
-        .glass-modal::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+        .modal-content.success { border-top: 5px solid var(--arc-blue); }
+        .modal-content.error { border-top: 5px solid var(--iron-red); }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
         }
-        .glass-modal::-webkit-scrollbar-thumb {
-            background: rgba(153, 242, 200, 0.5);
-            border-radius: 10px;
-        }
-        .glass-modal::-webkit-scrollbar-thumb:hover {
-            background: rgba(153, 242, 200, 0.8);
-        }
-        /* Fix for datetime-local icon color in dark theme */
-        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-            filter: invert(0.8);
+        @keyframes fadeIn {
+            from {opacity: 0}
+            to {opacity: 1}
         }
     </style>
 </head>
-<body class="min-h-screen">
+<body>
 
-    <!-- Container Utama -->
-    <div class="container mx-auto p-4 md:p-8">
-        
-        <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">Sistem Booking Ruang Rapat</h1>
-            <p class="text-md text-green-200 mt-1">RSUD dr. R. Koesma Tuban</p>
+    <div class="container">
+        <header>
+            <h1>Sistem Booking Ruang Rapat</h1>
+            <p>RSUD dr. R. Koesma Tuban</p>
         </header>
 
-        <!-- Tombol Aksi -->
-        <div class="flex justify-center mb-8">
-            <button id="openBookingModalBtn" class="bg-green-500 hover:bg-green-400 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 border border-green-300">
-                Buat Reservasi Baru
-            </button>
-        </div>
-
-        <!-- Tampilan Ruangan -->
-        <div id="room-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Ruangan akan di-generate oleh JavaScript -->
-        </div>
-
-    </div>
-
-    <!-- Modal Form Booking -->
-    <div id="bookingModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
-        <div class="glass-modal w-full max-w-lg max-h-screen overflow-y-auto">
-            <div class="p-6 border-b border-white/20">
-                <h3 class="text-2xl font-semibold text-white">Formulir Reservasi Ruangan</h3>
+        <div class="main-content">
+            <div class="form-card glass-card">
+                <h2>Buat Booking Baru</h2>
+                <form id="bookingForm">
+                    <div class="form-group">
+                        <label for="namaRuangan">Pilih Ruangan</label>
+                        <select id="namaRuangan" name="namaRuangan" required>
+                            <option value="Gajah Mada">Gajah Mada</option>
+                            <option value="Ronggolawe">Ronggolawe</option>
+                            <option value="Aryo Tejo">Aryo Tejo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="namaPeminjam">Nama Peminjam</label>
+                        <input type="text" id="namaPeminjam" name="namaPeminjam" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="unitBagian">Unit / Bagian</label>
+                        <input type="text" id="unitBagian" name="unitBagian" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tanggalMulai">Tanggal & Waktu Mulai</label>
+                        <input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tanggalSelesai">Tanggal & Waktu Selesai</label>
+                        <input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="keperluan">Keperluan</label>
+                        <textarea id="keperluan" name="keperluan" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit" id="submitButton">Booking Sekarang</button>
+                </form>
             </div>
-            <form id="bookingForm" class="p-6 space-y-4">
-                <div>
-                    <label for="name" class="block text-sm font-medium text-green-200">Nama Pemesan</label>
-                    <input type="text" id="name" name="name" class="mt-1 block w-full bg-white/10 border-white/20 rounded-md shadow-sm text-white focus:ring-green-400 focus:border-green-400" required>
+            <div class="schedule-card glass-card">
+                <h2>Jadwal Penggunaan Ruangan</h2>
+                <div id="scheduleContainer" class="schedule-rooms">
+                    <p id="loadingMessage">Memuat jadwal...</p>
                 </div>
-                <div>
-                    <label for="department" class="block text-sm font-medium text-green-200">Unit/Bidang</label>
-                    <input type="text" id="department" name="department" class="mt-1 block w-full bg-white/10 border-white/20 rounded-md shadow-sm text-white focus:ring-green-400 focus:border-green-400" required>
-                </div>
-                <div>
-                    <label for="room" class="block text-sm font-medium text-green-200">Pilih Ruangan</label>
-                    <select id="room" name="room" class="mt-1 block w-full bg-gray-800/50 border-white/20 rounded-md shadow-sm text-white focus:ring-green-400 focus:border-green-400" required>
-                        <option value="Gajah Mada">Gajah Mada</option>
-                        <option value="Ronggolawe">Ronggolawe</option>
-                        <option value="Aryo Tejo">Aryo Tejo</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="startTime" class="block text-sm font-medium text-green-200">Waktu Mulai</label>
-                    <input type="datetime-local" id="startTime" name="startTime" class="mt-1 block w-full bg-white/10 border-white/20 rounded-md shadow-sm text-white focus:ring-green-400 focus:border-green-400" required>
-                </div>
-                <div>
-                    <label for="endTime" class="block text-sm font-medium text-green-200">Waktu Selesai</label>
-                    <input type="datetime-local" id="endTime" name="endTime" class="mt-1 block w-full bg-white/10 border-white/20 rounded-md shadow-sm text-white focus:ring-green-400 focus:border-green-400" required>
-                </div>
-                <div>
-                    <label for="purpose" class="block text-sm font-medium text-green-200">Keperluan/Agenda</label>
-                    <textarea id="purpose" name="purpose" rows="3" class="mt-1 block w-full bg-white/10 border-white/20 rounded-md shadow-sm text-white focus:ring-green-400 focus:border-green-400" required></textarea>
-                </div>
-                <div class="flex justify-end pt-4 space-x-3">
-                    <button type="button" id="closeBookingModalBtn" class="bg-gray-500/50 hover:bg-gray-500/80 text-white font-bold py-2 px-4 rounded-lg">Batal</button>
-                    <button type="submit" id="submitBtn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg">Simpan Reservasi</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 
-    <!-- Modal Notifikasi -->
-    <div id="notificationModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
-        <div class="glass-modal w-full max-w-sm">
-            <div id="notificationHeader" class="p-4 rounded-t-lg">
-                <h3 id="notificationTitle" class="text-xl font-semibold text-white"></h3>
-            </div>
-            <div class="p-6">
-                <p id="notificationMessage" class="text-white"></p>
-            </div>
-            <div class="p-4 flex justify-end">
-                <button id="closeNotificationModalBtn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg">Tutup</button>
-            </div>
+    <!-- Modal Notification -->
+    <div id="notificationModal" class="modal">
+        <div id="modalContent" class="modal-content glass-card">
+            <span class="close-button">&times;</span>
+            <p id="modalMessage"></p>
         </div>
     </div>
 
     <script>
-        // ===================================================================================
-        // PASTE URL WEB APP ANDA DI SINI
-        // Ganti teks "PASTE_YOUR_WEB_APP_URL_HERE" dengan URL yang Anda dapatkan dari Google.
-        // ===================================================================================
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzP8ITrJuXXAYqul9KGCa0XZhSRw5JmmOlnG2818G3ckfR_spnr75i87v2F_PKf6crR/exec';
-        // ===================================================================================
+        // URL Web App Google Apps Script Anda.
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
 
-        // Daftar ruangan
         const rooms = ["Gajah Mada", "Ronggolawe", "Aryo Tejo"];
-
-        // Elemen-elemen DOM
-        const roomContainer = document.getElementById('room-container');
-        const openBookingModalBtn = document.getElementById('openBookingModalBtn');
-        const closeBookingModalBtn = document.getElementById('closeBookingModalBtn');
-        const bookingModal = document.getElementById('bookingModal');
-        const bookingForm = document.getElementById('bookingForm');
-        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('bookingForm');
+        const submitButton = document.getElementById('submitButton');
+        const scheduleContainer = document.getElementById('scheduleContainer');
+        const loadingMessage = document.getElementById('loadingMessage');
         
-        const notificationModal = document.getElementById('notificationModal');
-        const notificationHeader = document.getElementById('notificationHeader');
-        const notificationTitle = document.getElementById('notificationTitle');
-        const notificationMessage = document.getElementById('notificationMessage');
-        const closeNotificationModalBtn = document.getElementById('closeNotificationModalBtn');
+        // Modal elements
+        const modal = document.getElementById('notificationModal');
+        const modalContent = document.getElementById('modalContent');
+        const modalMessage = document.getElementById('modalMessage');
+        const closeButton = document.querySelector('.close-button');
 
-        // Fungsi untuk menampilkan notifikasi
-        function showNotification(title, message, isSuccess = true) {
-            notificationTitle.textContent = title;
-            notificationMessage.textContent = message;
-            notificationHeader.className = `p-4 rounded-t-lg ${isSuccess ? 'bg-green-500/80' : 'bg-red-500/80'}`;
-            notificationModal.classList.remove('hidden');
+        // --- Modal Logic ---
+        function showModal(message, type = 'success') {
+            modalMessage.textContent = message;
+            modalContent.className = 'modal-content glass-card ' + type;
+            modal.style.display = 'block';
         }
-        
-        closeNotificationModalBtn.addEventListener('click', () => {
-            notificationModal.classList.add('hidden');
-        });
-
-        // Fungsi untuk membuka/menutup modal booking
-        openBookingModalBtn.addEventListener('click', () => {
-            bookingForm.reset();
-            const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            now.setSeconds(0);
-            now.setMilliseconds(0);
-            document.getElementById('startTime').value = now.toISOString().slice(0,16);
-            bookingModal.classList.remove('hidden');
-        });
-
-        closeBookingModalBtn.addEventListener('click', () => {
-            bookingModal.classList.add('hidden');
-        });
-
-        // Inisialisasi tampilan ruangan
-        function initializeRooms() {
-            roomContainer.innerHTML = '';
-            rooms.forEach(roomName => {
-                const roomEl = document.createElement('div');
-                roomEl.className = 'glass-card p-6';
-                roomEl.innerHTML = `
-                    <h2 class="text-2xl font-bold text-white mb-4">${roomName}</h2>
-                    <div class="space-y-3">
-                        <p id="status-${roomName.replace(/\s+/g, '-')}" class="text-lg font-semibold text-green-300">Tersedia</p>
-                        <ul id="list-${roomName.replace(/\s+/g, '-')}" class="space-y-3 text-sm">
-                           <li class="text-gray-300">Belum ada jadwal.</li>
-                        </ul>
-                    </div>
-                `;
-                roomContainer.appendChild(roomEl);
-            });
+        closeButton.onclick = () => modal.style.display = 'none';
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
         }
 
-        // Fungsi untuk format tanggal dan waktu
-        function formatDateTime(dateString) {
-            const date = new Date(dateString);
-            return new Intl.DateTimeFormat('id-ID', {
-                dateStyle: 'full',
-                timeStyle: 'short',
-                timeZone: 'Asia/Jakarta'
-            }).format(date);
-        }
-        
-        // Fungsi untuk menampilkan booking
-        function renderBookings(bookings) {
-            initializeRooms(); // Reset tampilan
+        // --- Data Fetching and Rendering ---
+        async function fetchSchedule() {
+            loadingMessage.style.display = 'block';
+            scheduleContainer.innerHTML = ''; // Clear previous content
             
-            const now = new Date();
-
-            const sortedBookings = bookings
-                .filter(b => new Date(b.endTime) > now) // Hanya tampilkan jadwal yang belum selesai
-                .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-
-            sortedBookings.forEach(booking => {
-                const roomName = booking.room;
-                const listId = `list-${roomName.replace(/\s+/g, '-')}`;
-                const statusId = `status-${roomName.replace(/\s+/g, '-')}`;
-
-                const listEl = document.getElementById(listId);
-                const statusEl = document.getElementById(statusId);
-
-                if (listEl.querySelector('.text-gray-300')) {
-                    listEl.innerHTML = ''; // Hapus pesan "Belum ada jadwal"
-                }
-
-                const bookingCard = document.createElement('li');
-                bookingCard.className = 'bg-black/20 border border-white/10 p-4 rounded-lg';
-                
-                const startTime = new Date(booking.startTime);
-                const endTime = new Date(booking.endTime);
-
-                bookingCard.innerHTML = `
-                    <p class="font-semibold text-white">${booking.purpose}</p>
-                    <p class="text-gray-300">Oleh: ${booking.name} (${booking.department})</p>
-                    <p class="text-gray-300 mt-2">
-                        <span class="font-medium">Mulai:</span> ${formatDateTime(startTime)}
-                    </p>
-                    <p class="text-gray-300">
-                        <span class="font-medium">Selesai:</span> ${formatDateTime(endTime)}
-                    </p>
-                `;
-                listEl.appendChild(bookingCard);
-
-                // Update status ruangan jika sedang digunakan
-                if (now >= startTime && now <= endTime) {
-                    statusEl.textContent = 'Sedang Digunakan';
-                    statusEl.className = 'text-lg font-semibold text-red-400 animate-pulse';
-                }
-            });
-        }
-
-        // Memuat data dari Google Sheet
-        async function loadReservations() {
-            if (scriptURL === 'PASTE_YOUR_WEB_APP_URL_HERE') {
-                showNotification('Konfigurasi Diperlukan', 'Harap masukkan URL Web App Google Script Anda di dalam file HTML.', false);
-                return;
-            }
             try {
-                const response = await fetch(scriptURL);
-                const data = await response.json();
-                if (data.error) {
-                    throw new Error(data.message);
-                }
-                renderBookings(data);
-            } catch (error) {
-                console.error('Error loading reservations:', error);
-                showNotification('Error', 'Gagal memuat data dari Google Sheet. Pastikan URL dan izin sudah benar.', false);
-            }
-        }
-
-        // Menangani submit form
-        bookingForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            if (scriptURL === 'PASTE_YOUR_WEB_APP_URL_HERE') {
-                showNotification('Konfigurasi Diperlukan', 'Harap masukkan URL Web App Google Script Anda di dalam file HTML.', false);
-                return;
-            }
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Menyimpan...';
-
-            const formData = {
-                name: bookingForm.name.value,
-                department: bookingForm.department.value,
-                room: bookingForm.room.value,
-                startTime: bookingForm.startTime.value,
-                endTime: bookingForm.endTime.value,
-                purpose: bookingForm.purpose.value,
-            };
-
-            try {
-                const response = await fetch(scriptURL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
+                const response = await fetch(GAS_WEB_APP_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    bookingModal.classList.add('hidden');
-                    showNotification('Sukses', result.message);
-                    loadReservations(); // Muat ulang data
+                    renderSchedule(result.data);
                 } else {
-                    throw new Error(result.message);
+                    throw new Error(result.message || 'Gagal mengambil data dari Google Sheets.');
+                }
+            } catch (error) {
+                console.error('Error fetching schedule:', error);
+                scheduleContainer.innerHTML = `<p style="color:var(--iron-red);">Gagal memuat jadwal. Pastikan URL Web App benar dan sudah di-deploy dengan benar.</p>`;
+            } finally {
+                loadingMessage.style.display = 'none';
+            }
+        }
+
+        function renderSchedule(data) {
+            scheduleContainer.innerHTML = ''; // Clear again to be safe
+
+            // Sort data by start date
+            data.sort((a, b) => new Date(`${a['Tanggal Mulai']}T${a['Waktu Mulai']}`) - new Date(`${b['Tanggal Mulai']}T${b['Waktu Mulai']}`));
+
+            rooms.forEach(room => {
+                const roomColumn = document.createElement('div');
+                roomColumn.className = 'room-column';
+                
+                const roomTitle = document.createElement('h3');
+                roomTitle.textContent = room;
+                roomColumn.appendChild(roomTitle);
+
+                const bookingsForRoom = data.filter(booking => booking['Nama Ruangan'] === room && booking['Status'] === 'Booked');
+
+                if (bookingsForRoom.length === 0) {
+                    const noBooking = document.createElement('p');
+                    noBooking.textContent = 'Belum ada jadwal.';
+                    noBooking.style.opacity = '0.6';
+                    noBooking.style.textAlign = 'center';
+                    roomColumn.appendChild(noBooking);
+                } else {
+                    bookingsForRoom.forEach(booking => {
+                        const item = document.createElement('div');
+                        item.className = 'booking-item';
+                        
+                        const startDate = new Date(`${booking['Tanggal Mulai']}T${booking['Waktu Mulai']}`);
+                        const endDate = new Date(`${booking['Tanggal Selesai']}T${booking['Waktu Selesai']}`);
+                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+                        item.innerHTML = `
+                            <p class="keperluan">${booking['Keperluan']}</p>
+                            <p class="peminjam">Oleh: ${booking['Nama Peminjam']} (${booking['Unit/Bagian']})</p>
+                            <p><strong>Mulai:</strong> ${startDate.toLocaleDateString('id-ID', options)} ${booking['Waktu Mulai']}</p>
+                            <p><strong>Selesai:</strong> ${endDate.toLocaleDateString('id-ID', options)} ${booking['Waktu Selesai']}</p>
+                        `;
+                        roomColumn.appendChild(item);
+                    });
+                }
+                scheduleContainer.appendChild(roomColumn);
+            });
+        }
+
+        // --- Form Submission ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const startDateTimeValue = document.getElementById('tanggalMulai').value;
+            const endDateTimeValue = document.getElementById('tanggalSelesai').value;
+
+            if (!startDateTimeValue || !endDateTimeValue) {
+                showModal('Harap isi tanggal dan waktu mulai dan selesai.', 'error');
+                return;
+            }
+
+            const startDateTime = new Date(startDateTimeValue);
+            const endDateTime = new Date(endDateTimeValue);
+
+            if (endDateTime <= startDateTime) {
+                showModal('Waktu selesai harus setelah waktu mulai.', 'error');
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Mengirim...';
+
+            const formData = new FormData(form);
+            const bookingData = {
+                namaRuangan: formData.get('namaRuangan'),
+                namaPeminjam: formData.get('namaPeminjam'),
+                unitBagian: formData.get('unitBagian'),
+                tanggalMulai: startDateTime.toISOString().split('T')[0],
+                waktuMulai: startDateTime.toTimeString().split(' ')[0].substring(0,5),
+                tanggalSelesai: endDateTime.toISOString().split('T')[0],
+                waktuSelesai: endDateTime.toTimeString().split(' ')[0].substring(0,5),
+                keperluan: formData.get('keperluan'),
+            };
+
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: {
+                      'Content-Type': 'text/plain;charset=utf-8',
+                    },
+                    body: JSON.stringify(bookingData)
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    showModal(result.message, 'success');
+                    form.reset();
+                    fetchSchedule(); // Refresh schedule on success
+                } else {
+                    // Show specific error from server (e.g., conflict message)
+                    showModal(result.message, 'error');
                 }
 
             } catch (error) {
                 console.error('Error submitting form:', error);
-                showNotification('Error', error.message || 'Gagal menyimpan reservasi. Coba lagi.', false);
+                showModal('Gagal mengirim booking. Cek koneksi internet atau hubungi administrator.', 'error');
             } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Simpan Reservasi';
+                submitButton.disabled = false;
+                submitButton.textContent = 'Booking Sekarang';
             }
         });
 
-        // Inisialisasi awal
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeRooms();
-            loadReservations();
-            // Refresh data setiap 5 menit
-            setInterval(loadReservations, 300000);
-        });
-
+        // Initial load
+        document.addEventListener('DOMContentLoaded', fetchSchedule);
     </script>
-
 </body>
 </html>
