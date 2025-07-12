@@ -21,7 +21,13 @@
         header h1 { font-size: 2rem; color: var(--iron-gold); margin: 0; }
         .user-content { display: flex; flex-direction: column; gap: 2rem; }
         .glass-card { background: rgba(20, 30, 40, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.15); padding: 1.5rem; }
-        .form-card h2, .schedule-card h2 { color: var(--iron-gold); border-bottom: 2px solid var(--iron-red); padding-bottom: 0.5rem; margin-top: 0; font-size: 1.5rem; }
+        
+        /* [BARU] Header di dalam card */
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--iron-red); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        .card-header h2 { color: var(--iron-gold); margin: 0; font-size: 1.5rem; border: none; padding: 0; }
+        .btn-refresh { background: transparent; border: 1px solid var(--arc-blue); color: var(--arc-blue); padding: 0.4rem 0.8rem; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
+        .btn-refresh:hover { background: var(--arc-blue); color: white; }
+        
         .booking-item { background: rgba(10, 20, 30, 0.5); padding: 0.75rem; border-radius: 5px; margin-bottom: 0.75rem; font-size: 0.9rem; }
         .booking-item.status-disetujui { border-left: 4px solid var(--status-approved); }
         .booking-item.status-belum-disetujui { border-left: 4px solid var(--status-pending); }
@@ -54,8 +60,17 @@
         <div id="user-section">
             <header><h1>Sistem Booking Ruang Rapat</h1><p>RSUD dr. R. Koesma Tuban</p></header>
             <div class="user-content">
-                <div class="form-card glass-card"><h2>Buat Booking Baru</h2><form id="bookingForm"></form></div>
-                <div class="schedule-card glass-card"><h2>Jadwal Penggunaan Ruangan</h2><div id="scheduleContainer" class="schedule-rooms"><p id="loadingMessage">Memuat jadwal...</p></div></div>
+                <div class="form-card glass-card">
+                    <div class="card-header"><h2>Buat Booking Baru</h2></div>
+                    <form id="bookingForm"></form>
+                </div>
+                <div class="schedule-card glass-card">
+                    <div class="card-header">
+                        <h2>Jadwal Penggunaan Ruangan</h2>
+                        <button id="refreshUserBtn" class="btn-refresh">↻ Refresh</button>
+                    </div>
+                    <div id="scheduleContainer" class="schedule-rooms"><p id="loadingMessage">Memuat jadwal...</p></div>
+                </div>
             </div>
         </div>
         <!-- Tampilan Admin -->
@@ -67,7 +82,13 @@
                 <button id="adminLoginBtn" class="btn-submit">Lihat Data</button>
                 <p id="login-message" style="color: red; text-align: center; margin-top: 1rem;"></p>
             </div>
-            <div id="admin-dashboard-view" style="display: none;"><ul id="booking-list" style="list-style: none; padding: 0;"></ul></div>
+            <div id="admin-dashboard-view" style="display: none;">
+                <div class="card-header">
+                    <h2>Daftar Pengajuan</h2>
+                    <button id="refreshAdminBtn" class="btn-refresh">↻ Refresh</button>
+                </div>
+                <ul id="booking-list" style="list-style: none; padding: 0;"></ul>
+            </div>
         </div>
     </div>
     <script>
@@ -78,6 +99,8 @@
         const adminLoginView = document.getElementById('admin-login-view'), adminDashboardView = document.getElementById('admin-dashboard-view');
         const adminLoginBtn = document.getElementById('adminLoginBtn'), adminPasswordInput = document.getElementById('adminPassword');
         const bookingList = document.getElementById('booking-list'), loginMessage = document.getElementById('login-message');
+        const refreshUserBtn = document.getElementById('refreshUserBtn');
+        const refreshAdminBtn = document.getElementById('refreshAdminBtn');
         let currentAdminPassword = '';
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -91,6 +114,7 @@
             adminSection.style.display = 'none';
             bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="Gajah Mada">Gajah Mada</option><option value="Ronggolawe">Ronggolawe</option><option value="Aryo Tejo">Aryo Tejo</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required></div><div class="form-group"><label for="unitBagian">Unit / Bagian</label><input type="text" id="unitBagian" name="unitBagian" required></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
             bookingForm.addEventListener('submit', handleUserSubmit);
+            refreshUserBtn.addEventListener('click', fetchUserSchedule); // [BARU] Listener tombol refresh user
             fetchUserSchedule();
         }
         async function fetchUserSchedule() {
@@ -154,7 +178,22 @@
             adminSection.style.display = 'block';
             adminLoginBtn.addEventListener('click', handleAdminLogin);
             adminPasswordInput.addEventListener('keyup', e => e.key === 'Enter' && handleAdminLogin());
+            refreshAdminBtn.addEventListener('click', fetchAdminData); // [BARU] Listener tombol refresh admin
         }
+        
+        // [BARU] Fungsi terpisah untuk fetch data admin
+        async function fetchAdminData() {
+            bookingList.innerHTML = '<p>Memuat data terbaru...</p>';
+            try {
+                const dataResponse = await fetch(GAS_WEB_APP_URL);
+                const dataResult = await dataResponse.json();
+                if (dataResult.status !== 'success') throw new Error(dataResult.message);
+                renderAdminList(dataResult.data);
+            } catch (error) {
+                bookingList.innerHTML = `<p style="color:red">Gagal memuat data: ${error.message}</p>`;
+            }
+        }
+
         async function handleAdminLogin() {
             loginMessage.textContent = "Memvalidasi password...";
             adminLoginBtn.disabled = true;
@@ -168,13 +207,10 @@
                 const validationResponse = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'validatePassword', password: currentAdminPassword }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const validationResult = await validationResponse.json();
                 if (validationResult.status !== 'success') throw new Error(validationResult.message);
-                loginMessage.textContent = "Memuat data...";
-                const dataResponse = await fetch(GAS_WEB_APP_URL);
-                const dataResult = await dataResponse.json();
-                if (dataResult.status !== 'success') throw new Error(dataResult.message);
+                
                 adminLoginView.style.display = 'none';
                 adminDashboardView.style.display = 'block';
-                renderAdminList(dataResult.data);
+                await fetchAdminData(); // Panggil fungsi fetch data
             } catch (error) {
                 loginMessage.textContent = `Gagal: ${error.message}`;
             } finally {
@@ -208,9 +244,7 @@
                     const result = await response.json();
                     if (result.status !== 'success') throw new Error(result.message);
                     alert(`Status berhasil diubah!`);
-                    const freshResponse = await fetch(GAS_WEB_APP_URL);
-                    const freshResult = await freshResponse.json();
-                    renderAdminList(freshResult.data);
+                    await fetchAdminData(); // Refresh list setelah aksi
                 } catch (error) {
                     alert(`Gagal: ${error.message}`);
                     button.disabled = false;
