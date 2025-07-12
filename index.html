@@ -67,6 +67,7 @@
         .admin-booking-item[data-status="Ditolak"] { border-color: var(--status-rejected); background: #2a2a3e; opacity: 0.7; }
         .actions { margin-top: 1rem; display: flex; gap: 1rem; }
         .btn { padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-approve { background-color: var(--status-approved); color: white; }
         .btn-reject { background-color: var(--iron-red); color: white; }
         .login-form { max-width: 400px; margin: 5rem auto; padding: 2rem; background: #16213e; border-radius: 8px; }
@@ -147,13 +148,25 @@
         const bookingList = document.getElementById('booking-list');
         const loginMessage = document.getElementById('login-message');
 
+        // --- PERBAIKAN: Variabel untuk menyimpan password admin ---
+        let currentAdminPassword = '';
+
         // --- FUNGSI UTAMA ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Cek hash di URL untuk menentukan tampilan
             if (window.location.hash === '#admin') {
                 showAdminView();
             } else {
                 showUserView();
             }
+            // Listener untuk perubahan hash (jika pengguna navigasi manual)
+            window.addEventListener('hashchange', () => {
+                if (window.location.hash === '#admin') {
+                    showAdminView();
+                } else {
+                    window.location.reload(); // Reload untuk kembali ke mode user
+                }
+            });
         });
 
         // --- LOGIKA TAMPILAN USER ---
@@ -162,7 +175,6 @@
             userSection.style.display = 'block';
             adminSection.style.display = 'none';
             
-            // Isi form booking
             bookingForm.innerHTML = `
                 <div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="Gajah Mada">Gajah Mada</option><option value="Ronggolawe">Ronggolawe</option><option value="Aryo Tejo">Aryo Tejo</option></select></div>
                 <div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required></div>
@@ -180,12 +192,12 @@
         async function fetchUserSchedule() {
             loadingMessage.style.display = 'block';
             scheduleContainer.innerHTML = '';
-            // (Logika fetch dan render jadwal user sama seperti sebelumnya)
+            // (Logika fetch dan render jadwal user tetap sama)
         }
 
         function handleUserSubmit(e) {
             e.preventDefault();
-            // (Logika submit form user sama seperti sebelumnya)
+            // (Logika submit form user tetap sama)
         }
 
         // --- LOGIKA TAMPILAN ADMIN ---
@@ -201,6 +213,15 @@
         async function handleAdminLogin() {
             loginMessage.textContent = "Memuat data...";
             adminLoginBtn.disabled = true;
+
+            // --- PERBAIKAN: Simpan password ke variabel ---
+            currentAdminPassword = adminPasswordInput.value;
+            if (!currentAdminPassword) {
+                loginMessage.textContent = "Password tidak boleh kosong.";
+                adminLoginBtn.disabled = false;
+                return;
+            }
+
             try {
                 const response = await fetch(GAS_WEB_APP_URL);
                 const result = await response.json();
@@ -246,9 +267,11 @@
         async function handleAdminAction(e) {
             if (e.target.matches('.btn-approve') || e.target.matches('.btn-reject')) {
                 const button = e.target;
-                const password = adminPasswordInput.value;
+                
+                // --- PERBAIKAN: Gunakan password dari variabel yang tersimpan ---
+                const password = currentAdminPassword; 
                 if (!password) {
-                    alert('Password admin harus diisi untuk melakukan aksi ini.');
+                    alert('Sesi admin tidak valid. Silakan refresh dan login kembali.');
                     return;
                 }
                 
@@ -262,7 +285,7 @@
                             action: 'updateStatus',
                             bookingId: button.dataset.id,
                             newStatus: button.dataset.status,
-                            password
+                            password: password // Menggunakan password dari variabel
                         }),
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                     });
@@ -270,7 +293,11 @@
                     if (result.status !== 'success') throw new Error(result.message);
                     
                     alert(`Status berhasil diubah!`);
-                    handleAdminLogin(); // Refresh list
+                    // Refresh data tanpa perlu login ulang
+                    const freshResponse = await fetch(GAS_WEB_APP_URL);
+                    const freshResult = await freshResponse.json();
+                    renderAdminList(freshResult.data);
+
                 } catch (error) {
                     alert(`Gagal: ${error.message}`);
                     button.disabled = false;
