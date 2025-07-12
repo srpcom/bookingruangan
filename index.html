@@ -45,12 +45,17 @@
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-approve { background-color: var(--status-approved); color: white; }
         .btn-reject { background-color: #ffc107; color: black; }
-        .btn-delete { background-color: var(--iron-red); color: white; } /* [BARU] Tombol Hapus */
+        .btn-delete { background-color: var(--iron-red); color: white; }
         .login-form { max-width: 400px; margin: 5rem auto; padding: 2rem; background: #16213e; border-radius: 8px; }
         .form-group { margin-bottom: 1rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); background-color: rgba(0,0,0,0.3); color: var(--text-light); font-size: 1rem; box-sizing: border-box; }
         .btn-submit { width: 100%; padding: 0.8rem 1rem; font-size: 1.1rem; font-weight: 700; color: var(--text-light); background: linear-gradient(45deg, var(--iron-red), #a01010); border: none; border-radius: 8px; cursor: pointer; }
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #16213e; padding: 2rem; border-radius: 10px; text-align: center; max-width: 90%; width: 400px; border-top: 4px solid var(--arc-blue); }
+        .modal-content.error { border-top-color: var(--iron-red); }
+        .modal-buttons { margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; }
         @media (min-width: 992px) { .user-content { display: grid; grid-template-columns: 400px 1fr; gap: 2rem; } .schedule-rooms { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } }
     </style>
 </head>
@@ -91,6 +96,14 @@
             </div>
         </div>
     </div>
+    <!-- Modal -->
+    <div id="modal" class="modal-overlay">
+        <div id="modalContent" class="modal-content">
+            <p id="modalMessage"></p>
+            <div id="modalButtons" class="modal-buttons"></div>
+        </div>
+    </div>
+
     <script>
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
         const rooms = ["Gajah Mada", "Ronggolawe", "Aryo Tejo"];
@@ -101,7 +114,28 @@
         const bookingList = document.getElementById('booking-list'), loginMessage = document.getElementById('login-message');
         const refreshUserBtn = document.getElementById('refreshUserBtn');
         const refreshAdminBtn = document.getElementById('refreshAdminBtn');
+        const modal = document.getElementById('modal'), modalMessage = document.getElementById('modalMessage'), modalButtons = document.getElementById('modalButtons'), modalContent = document.getElementById('modalContent');
         let currentAdminPassword = '';
+
+        // --- Modal Functions ---
+        const showModal = (message, type = 'info') => {
+            modalMessage.textContent = message;
+            modalContent.className = `modal-content ${type}`;
+            modalButtons.innerHTML = `<button class="btn btn-submit">OK</button>`;
+            modal.style.display = 'flex';
+            modalButtons.querySelector('button').onclick = () => modal.style.display = 'none';
+        };
+
+        const showConfirm = (message) => {
+            return new Promise(resolve => {
+                modalMessage.textContent = message;
+                modalContent.className = 'modal-content';
+                modalButtons.innerHTML = `<button id="confirm-yes" class="btn btn-delete">Ya</button><button id="confirm-no" class="btn">Tidak</button>`;
+                modal.style.display = 'flex';
+                document.getElementById('confirm-yes').onclick = () => { modal.style.display = 'none'; resolve(true); };
+                document.getElementById('confirm-no').onclick = () => { modal.style.display = 'none'; resolve(false); };
+            });
+        };
 
         document.addEventListener('DOMContentLoaded', () => {
             if (window.location.hash === '#admin') { showAdminView(); } else { showUserView(); }
@@ -118,22 +152,24 @@
             fetchUserSchedule();
         }
         async function fetchUserSchedule() {
+            loadingMessage.textContent = 'Memuat jadwal...';
             loadingMessage.style.display = 'block';
             scheduleContainer.innerHTML = '';
             try {
                 const response = await fetch(GAS_WEB_APP_URL);
+                if (!response.ok) throw new Error('Respon jaringan tidak baik.');
                 const result = await response.json();
                 if (result.status === 'success') { renderUserSchedule(result.data); } 
                 else { throw new Error(result.message); }
             } catch (error) {
-                scheduleContainer.innerHTML = `<p style="color:var(--iron-red);">Gagal memuat jadwal.</p>`;
+                scheduleContainer.innerHTML = `<p style="color:var(--iron-red);">Gagal memuat jadwal. Pastikan skrip sudah di-deploy dengan benar.</p>`;
+                console.error("Fetch error:", error);
             } finally {
                 loadingMessage.style.display = 'none';
             }
         }
         function renderUserSchedule(data) {
             scheduleContainer.innerHTML = '';
-            // [DIPERBAIKI] Tampilkan juga yang ditolak
             const visibleBookings = data.filter(b => b.Status === "Disetujui" || b.Status === "Belum Disetujui" || b.Status === "Ditolak");
             visibleBookings.sort((a, b) => new Date(`${a['Tanggal Mulai']}T${a['Waktu Mulai']}`) - new Date(`${b['Tanggal Mulai']}T${b['Waktu Mulai']}`));
             rooms.forEach(room => {
@@ -149,10 +185,7 @@
                         const statusClass = `status-${booking.Status.toLowerCase().replace(/ /g, '-')}`;
                         item.className = `booking-item ${statusClass}`;
                         const startDate = new Date(`${booking['Tanggal Mulai']}T${booking['Waktu Mulai']}`), endDate = new Date(`${booking['Tanggal Selesai']}T${booking['Waktu Selesai']}`);
-                        
-                        // [DIPERBAIKI] Tampilkan "TIDAK DISETUJUI" jika statusnya "Ditolak"
                         const statusText = booking.Status === 'Ditolak' ? 'TIDAK DISETUJUI' : booking.Status;
-
                         item.innerHTML = `<p class="keperluan">${booking.Keperluan}</p><p class="peminjam">Oleh: ${booking['Nama Peminjam']} (${booking['Unit/Bagian']})</p><p><strong>Mulai:</strong> ${startDate.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} ${booking['Waktu Mulai']}</p><p><strong>Selesai:</strong> ${endDate.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} ${booking['Waktu Selesai']}</p><p class="status">${statusText}</p>`;
                         roomColumn.appendChild(item);
                     });
@@ -160,7 +193,22 @@
                 scheduleContainer.appendChild(roomColumn);
             });
         }
-        async function handleUserSubmit(e) { /* ... (fungsi ini tidak berubah) ... */ }
+        async function handleUserSubmit(e) {
+            e.preventDefault();
+            const submitButton = document.getElementById('submitButton');
+            const startDateTime = new Date(document.getElementById('tanggalMulai').value), endDateTime = new Date(document.getElementById('tanggalSelesai').value);
+            if (endDateTime <= startDateTime) { showModal('Waktu selesai harus setelah waktu mulai.', 'error'); return; }
+            submitButton.disabled = true; submitButton.textContent = 'Mengirim...';
+            const formData = new FormData(bookingForm);
+            const bookingData = { namaRuangan: formData.get('namaRuangan'), namaPeminjam: formData.get('namaPeminjam'), unitBagian: formData.get('unitBagian'), tanggalMulai: startDateTime.toISOString().split('T')[0], waktuMulai: startDateTime.toTimeString().split(' ')[0].substring(0,5), tanggalSelesai: endDateTime.toISOString().split('T')[0], waktuSelesai: endDateTime.toTimeString().split(' ')[0].substring(0,5), keperluan: formData.get('keperluan'), };
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(bookingData), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const result = await response.json();
+                if (result.status === 'success') { showModal(result.message); bookingForm.reset(); fetchUserSchedule(); } 
+                else { showModal(result.message, 'error'); }
+            } catch (error) { showModal('Gagal mengirim booking. Cek koneksi internet.', 'error'); } 
+            finally { submitButton.disabled = false; submitButton.textContent = 'Kirim Permintaan Booking'; }
+        }
 
         function showAdminView() {
             document.body.className = 'admin-view-bg';
@@ -183,8 +231,28 @@
             }
         }
 
-        async function handleAdminLogin() { /* ... (fungsi ini tidak berubah) ... */ }
-        
+        async function handleAdminLogin() {
+            loginMessage.textContent = "Memvalidasi password...";
+            adminLoginBtn.disabled = true;
+            currentAdminPassword = adminPasswordInput.value;
+            if (!currentAdminPassword) {
+                loginMessage.textContent = "Password tidak boleh kosong.";
+                adminLoginBtn.disabled = false;
+                return;
+            }
+            try {
+                const validationResponse = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'validatePassword', password: currentAdminPassword }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const validationResult = await validationResponse.json();
+                if (validationResult.status !== 'success') throw new Error(validationResult.message);
+                adminLoginView.style.display = 'none';
+                adminDashboardView.style.display = 'block';
+                await fetchAdminData();
+            } catch (error) {
+                loginMessage.textContent = `Gagal: ${error.message}`;
+            } finally {
+                adminLoginBtn.disabled = false;
+            }
+        }
         function renderAdminList(data) {
             bookingList.innerHTML = '';
             data.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
@@ -193,15 +261,11 @@
                 item.className = 'admin-booking-item';
                 item.dataset.status = booking.Status;
                 let actionsHtml = '<div class="actions">';
-                
                 if (booking.Status === 'Belum Disetujui') {
                     actionsHtml += `<button class="btn btn-approve" data-id="${booking['ID Booking']}" data-status="Disetujui">Setujui</button>`;
                     actionsHtml += `<button class="btn btn-reject" data-id="${booking['ID Booking']}" data-status="Ditolak">Tolak</button>`;
                 }
-                // [BARU] Tombol hapus selalu ada
-                actionsHtml += `<button class="btn btn-delete" data-id="${booking['ID Booking']}">Hapus</button>`;
-                actionsHtml += '</div>';
-
+                actionsHtml += `<button class="btn btn-delete" data-id="${booking['ID Booking']}">Hapus</button></div>`;
                 item.innerHTML = `<div class="item-header"><h3>${booking.Keperluan}</h3><span class="status">${booking.Status}</span></div><p><strong>Ruangan:</strong> ${booking['Nama Ruangan']}</p><p><strong>Peminjam:</strong> ${booking['Nama Peminjam']} (${booking['Unit/Bagian']})</p><p><strong>Waktu:</strong> ${booking['Tanggal Mulai']} ${booking['Waktu Mulai']} s/d ${booking['Tanggal Selesai']} ${booking['Waktu Selesai']}</p>${actionsHtml}`;
                 bookingList.appendChild(item);
             });
@@ -210,36 +274,27 @@
         async function handleAdminAction(e) {
             const button = e.target;
             const password = currentAdminPassword;
-            if (!password) { alert('Sesi admin tidak valid. Silakan refresh dan login kembali.'); return; }
-            
-            let action = '';
-            let payload = { password: password, bookingId: button.dataset.id };
-
+            if (!password) { showModal('Sesi admin tidak valid. Silakan refresh dan login kembali.', 'error'); return; }
+            let action = '', payload = { password: password, bookingId: button.dataset.id };
             if (button.matches('.btn-approve') || button.matches('.btn-reject')) {
                 action = 'updateStatus';
                 payload.newStatus = button.dataset.status;
             } else if (button.matches('.btn-delete')) {
-                // [BARU] Logika untuk tombol hapus
-                if (!confirm('Apakah Anda yakin ingin menghapus pengajuan ini secara permanen?')) {
-                    return;
-                }
+                const confirmed = await showConfirm('Apakah Anda yakin ingin menghapus pengajuan ini secara permanen?');
+                if (!confirmed) return;
                 action = 'deleteBooking';
-            } else {
-                return; // Bukan tombol aksi
-            }
-
+            } else { return; }
             button.disabled = true; button.textContent = 'Memproses...';
             try {
                 payload.action = action;
                 const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const result = await response.json();
                 if (result.status !== 'success') throw new Error(result.message);
-                alert(result.message);
+                showModal(result.message);
                 await fetchAdminData();
             } catch (error) {
-                alert(`Gagal: ${error.message}`);
+                showModal(`Gagal: ${error.message}`, 'error');
                 button.disabled = false;
-                // Kembalikan teks tombol
                 if(action === 'updateStatus') button.textContent = button.dataset.status === 'Disetujui' ? 'Setujui' : 'Tolak';
                 if(action === 'deleteBooking') button.textContent = 'Hapus';
             }
