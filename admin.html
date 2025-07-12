@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Approval Booking</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --iron-red: #c82a1d;
+            --iron-gold: #f8d452;
+            --status-approved: #28a745;
+            --status-pending: #ffc107;
+            --status-rejected: #6c757d;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0; padding: 1rem;
+            color: #f0f0f0;
+            background: #1a1a2e;
+        }
+        .container { max-width: 960px; margin: auto; }
+        header { text-align: center; margin-bottom: 2rem; }
+        header h1 { color: var(--iron-gold); }
+        
+        /* Halaman Konten */
+        #admin-content { margin-top: 2rem; }
+        #booking-list { list-style: none; padding: 0; }
+        .admin-booking-item {
+            background: #16213e;
+            margin-bottom: 1rem; padding: 1rem; border-radius: 8px;
+            border-left: 5px solid var(--status-pending);
+        }
+        .admin-booking-item[data-status="Disetujui"] { border-color: var(--status-approved); }
+        .admin-booking-item[data-status="Ditolak"] { border-color: var(--status-rejected); background: #2a2a3e; }
+        .admin-booking-item p { margin: 0.5rem 0; }
+        .item-header { display: flex; justify-content: space-between; align-items: center; }
+        .item-header h3 { margin: 0; color: var(--iron-gold); }
+        .item-header .status { font-weight: bold; }
+        .actions { margin-top: 1rem; display: flex; gap: 1rem; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-approve { background-color: var(--status-approved); color: white; }
+        .btn-reject { background-color: var(--iron-red); color: white; }
+        
+        /* Form Login */
+        .login-form { max-width: 400px; margin: 5rem auto; padding: 2rem; background: #16213e; border-radius: 8px; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; }
+        .form-group input { width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #0f3460; background-color: #1a1a2e; color: white; font-size: 1rem; box-sizing: border-box; }
+        .btn-login { width: 100%; padding: 0.8rem; background-color: var(--iron-red); color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Halaman Admin Approval</h1>
+        </header>
+
+        <div id="login-section" class="login-form">
+            <h2>Login Admin</h2>
+            <div class="form-group">
+                <label for="adminPassword">Password</label>
+                <input type="password" id="adminPassword" placeholder="Masukkan password admin">
+            </div>
+            <button id="refreshBtn" class="btn-login">Lihat Data</button>
+            <p id="login-message" style="color: red; text-align: center; margin-top: 1rem;"></p>
+        </div>
+
+        <div id="admin-content" style="display: none;">
+            <ul id="booking-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        const GAS_WEB_APP_URL = 'URL_WEB_APP_ANDA_DISINI'; // GANTI DENGAN URL ANDA
+        const refreshBtn = document.getElementById('refreshBtn');
+        const adminPasswordInput = document.getElementById('adminPassword');
+        const bookingList = document.getElementById('booking-list');
+        const loginSection = document.getElementById('login-section');
+        const adminContent = document.getElementById('admin-content');
+        const loginMessage = document.getElementById('login-message');
+
+        refreshBtn.addEventListener('click', fetchAdminData);
+
+        async function fetchAdminData() {
+            loginMessage.textContent = "Memuat data...";
+            try {
+                const response = await fetch(GAS_WEB_APP_URL);
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+                
+                loginSection.style.display = 'none';
+                adminContent.style.display = 'block';
+                renderAdminList(result.data);
+            } catch (error) {
+                loginMessage.textContent = `Gagal memuat data: ${error.message}`;
+            }
+        }
+
+        function renderAdminList(data) {
+            bookingList.innerHTML = '';
+            data.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp)); // Tampilkan yang terbaru di atas
+
+            data.forEach(booking => {
+                const item = document.createElement('li');
+                item.className = 'admin-booking-item';
+                item.dataset.status = booking.Status;
+
+                let actionsHtml = '';
+                if (booking.Status === 'Belum Disetujui') {
+                    actionsHtml = `
+                        <div class="actions">
+                            <button class="btn btn-approve" data-id="${booking['ID Booking']}" data-status="Disetujui">Setujui</button>
+                            <button class="btn btn-reject" data-id="${booking['ID Booking']}" data-status="Ditolak">Tolak</button>
+                        </div>
+                    `;
+                }
+
+                item.innerHTML = `
+                    <div class="item-header">
+                        <h3>${booking.Keperluan}</h3>
+                        <span class="status">${booking.Status}</span>
+                    </div>
+                    <p><strong>Ruangan:</strong> ${booking['Nama Ruangan']}</p>
+                    <p><strong>Peminjam:</strong> ${booking['Nama Peminjam']} (${booking['Unit/Bagian']})</p>
+                    <p><strong>Waktu:</strong> ${booking['Tanggal Mulai']} ${booking['Waktu Mulai']} s/d ${booking['Tanggal Selesai']} ${booking['Waktu Selesai']}</p>
+                    ${actionsHtml}
+                `;
+                bookingList.appendChild(item);
+            });
+        }
+
+        bookingList.addEventListener('click', async (e) => {
+            if (e.target.matches('.btn-approve') || e.target.matches('.btn-reject')) {
+                const button = e.target;
+                const bookingId = button.dataset.id;
+                const newStatus = button.dataset.status;
+                const password = adminPasswordInput.value;
+
+                if (!password) {
+                    alert('Password admin harus diisi untuk melakukan aksi ini.');
+                    return;
+                }
+
+                button.disabled = true;
+                button.textContent = 'Memproses...';
+
+                try {
+                    const response = await fetch(GAS_WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'updateStatus',
+                            bookingId,
+                            newStatus,
+                            password
+                        }),
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                    });
+                    const result = await response.json();
+                    if (result.status !== 'success') throw new Error(result.message);
+                    
+                    alert(`Status berhasil diubah menjadi ${newStatus}`);
+                    fetchAdminData(); // Refresh list
+                } catch (error) {
+                    alert(`Gagal: ${error.message}`);
+                    button.disabled = false;
+                    button.textContent = newStatus === 'Disetujui' ? 'Setujui' : 'Tolak';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
