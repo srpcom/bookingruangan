@@ -106,7 +106,7 @@
 
     <script>
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
-        const rooms = ["Gajah Mada", "Ronggolawe", "Aryo Tejo"];
+        const rooms = ["Gajah Mada", "Ronggolawe", "Aryo Tejo", "Diponegoro", "Komite Keperawatan"];
         const userSection = document.getElementById('user-section'), adminSection = document.getElementById('admin-section');
         const scheduleContainer = document.getElementById('scheduleContainer'), loadingMessage = document.getElementById('loadingMessage'), bookingForm = document.getElementById('bookingForm');
         const adminLoginView = document.getElementById('admin-login-view'), adminDashboardView = document.getElementById('admin-dashboard-view');
@@ -146,7 +146,7 @@
             document.body.className = 'user-view-bg';
             userSection.style.display = 'block';
             adminSection.style.display = 'none';
-            bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="Gajah Mada">Gajah Mada</option><option value="Ronggolawe">Ronggolawe</option><option value="Aryo Tejo">Aryo Tejo</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required></div><div class="form-group"><label for="unitBagian">Unit / Bagian</label><input type="text" id="unitBagian" name="unitBagian" required></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
+            bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="Gajah Mada">Gajah Mada</option><option value="Ronggolawe">Ronggolawe</option><option value="Aryo Tejo">Aryo Tejo</option><option value="Diponegoro">Diponegoro</option><option value="Komite Keperawatan">Komite Keperawatan</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required></div><div class="form-group"><label for="unitBagian">Unit / Bagian</label><input type="text" id="unitBagian" name="unitBagian" required></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
             bookingForm.addEventListener('submit', handleUserSubmit);
             refreshUserBtn.addEventListener('click', fetchUserSchedule);
             fetchUserSchedule();
