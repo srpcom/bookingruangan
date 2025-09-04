@@ -210,14 +210,15 @@
             const TEMPLATE_ID = "template_rv13z6g";
 
             // Data yang akan dikirim ke template EmailJS.
-            // Pastikan nama properti (misal: nama_ruangan) sama dengan yang ada di template email Anda.
+            // Pastikan nama properti di bawah (misal: ruangan, peminjam)
+            // SAMA PERSIS dengan variabel di template EmailJS Anda (misal: {{ruangan}}, {{peminjam}})
             const templateParams = {
                 to_email: "comsrp@gmail.com",
-                nama_ruangan: bookingData.namaRuangan,
-                nama_peminjam: bookingData.namaPeminjam,
+                ruangan: bookingData.namaRuangan,
+                peminjam: bookingData.namaPeminjam,
                 unit_bagian: bookingData.unitBagian,
-                waktu_mulai: `${bookingData.tanggalMulai} ${bookingData.waktuMulai}`,
-                waktu_selesai: `${bookingData.tanggalSelesai} ${bookingData.waktuSelesai}`,
+                mulai: `${bookingData.tanggalMulai} ${bookingData.waktuMulai}`,
+                selesai: `${bookingData.tanggalSelesai} ${bookingData.waktuSelesai}`,
                 keperluan: bookingData.keperluan
             };
 
@@ -347,3 +348,5 @@
     </script>
 </body>
 </html>
+
+
