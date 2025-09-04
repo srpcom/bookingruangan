@@ -104,6 +104,15 @@
         </div>
     </div>
 
+    <!-- Script untuk EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+      (function(){
+         // GANTI "YOUR_PUBLIC_KEY" DENGAN PUBLIC KEY ANDA DARI AKUN EMAILJS
+         emailjs.init({ publicKey: "KPYaaOC7926NTqP8a" });
+      })();
+    </script>
+
     <script>
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
         const rooms = ["Gajah Mada", "Ronggolawe", "Aryo Tejo", "Diponegoro", "Komite Keperawatan"];
@@ -193,6 +202,35 @@
                 scheduleContainer.appendChild(roomColumn);
             });
         }
+        
+        // --- FUNGSI PENGIRIMAN EMAIL NOTIFIKASI ---
+        function sendNotificationEmail(bookingData) {
+            // GANTI DENGAN SERVICE ID & TEMPLATE ID DARI AKUN EMAILJS ANDA
+            const SERVICE_ID = "service_h3pw21b";
+            const TEMPLATE_ID = "template_rv13z6g";
+
+            // Data yang akan dikirim ke template EmailJS.
+            // Pastikan nama properti (misal: nama_ruangan) sama dengan yang ada di template email Anda.
+            const templateParams = {
+                to_email: "comsrp@gmail.com",
+                nama_ruangan: bookingData.namaRuangan,
+                nama_peminjam: bookingData.namaPeminjam,
+                unit_bagian: bookingData.unitBagian,
+                waktu_mulai: `${bookingData.tanggalMulai} ${bookingData.waktuMulai}`,
+                waktu_selesai: `${bookingData.tanggalSelesai} ${bookingData.waktuSelesai}`,
+                keperluan: bookingData.keperluan
+            };
+
+            emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+                .then(function(response) {
+                   console.log('Notifikasi email berhasil terkirim!', response.status, response.text);
+                }, function(error) {
+                   console.error('Gagal mengirim notifikasi email:', error);
+                   // Anda bisa menambahkan notifikasi error di sini jika perlu,
+                   // tapi sebaiknya tidak mengganggu user karena booking utama sudah berhasil.
+                });
+        }
+
         async function handleUserSubmit(e) {
             e.preventDefault();
             const submitButton = document.getElementById('submitButton');
@@ -204,7 +242,14 @@
             try {
                 const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(bookingData), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const result = await response.json();
-                if (result.status === 'success') { showModal(result.message); bookingForm.reset(); fetchUserSchedule(); } 
+                if (result.status === 'success') { 
+                    showModal(result.message); 
+                    bookingForm.reset(); 
+                    fetchUserSchedule();
+                    
+                    // Panggil fungsi untuk mengirim email notifikasi setelah booking berhasil
+                    sendNotificationEmail(bookingData);
+                } 
                 else { showModal(result.message, 'error'); }
             } catch (error) { showModal('Gagal mengirim booking. Cek koneksi internet.', 'error'); } 
             finally { submitButton.disabled = false; submitButton.textContent = 'Kirim Permintaan Booking'; }
