@@ -21,7 +21,7 @@
         header h1 { font-size: 2rem; color: var(--iron-gold); margin: 0; }
         .user-content { display: flex; flex-direction: column; gap: 2rem; }
         .glass-card { background: rgba(20, 30, 40, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.15); padding: 1.5rem; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--iron-red); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--iron-red); padding-bottom: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;}
         .card-header h2 { color: var(--iron-gold); margin: 0; font-size: 1.5rem; border: none; padding: 0; }
         .btn-refresh { background: transparent; border: 1px solid var(--arc-blue); color: var(--arc-blue); padding: 0.4rem 0.8rem; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
         .btn-refresh:hover { background: var(--arc-blue); color: white; }
@@ -90,7 +90,10 @@
             <div id="admin-dashboard-view" style="display: none;">
                 <div class="card-header">
                     <h2>Daftar Pengajuan</h2>
-                    <button id="refreshAdminBtn" class="btn-refresh">↻ Refresh</button>
+                    <div>
+                        <button id="deleteOldDataBtn" class="btn btn-delete" style="margin-right: 10px;">Hapus Data Lama</button>
+                        <button id="refreshAdminBtn" class="btn-refresh">↻ Refresh</button>
+                    </div>
                 </div>
                 <ul id="booking-list" style="list-style: none; padding: 0;"></ul>
             </div>
@@ -122,6 +125,7 @@
         const bookingList = document.getElementById('booking-list'), loginMessage = document.getElementById('login-message');
         const refreshUserBtn = document.getElementById('refreshUserBtn');
         const refreshAdminBtn = document.getElementById('refreshAdminBtn');
+        const deleteOldDataBtn = document.getElementById('deleteOldDataBtn');
         const modal = document.getElementById('modal'), modalMessage = document.getElementById('modalMessage'), modalButtons = document.getElementById('modalButtons'), modalContent = document.getElementById('modalContent');
         let currentAdminPassword = '';
 
@@ -154,10 +158,8 @@
             document.body.className = 'user-view-bg';
             userSection.style.display = 'block';
             adminSection.style.display = 'none';
-            // --- MODIFIKASI: Mengganti input Unit/Bagian dengan dropdown ---
             bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="Gajah Mada">Gajah Mada</option><option value="Ronggolawe">Ronggolawe</option><option value="Aryo Tejo">Aryo Tejo</option><option value="Diponegoro">Diponegoro</option><option value="Komite Keperawatan">Komite Keperawatan</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required></div><div class="form-group"><label for="unitBagianSelect">Unit / Bagian</label><select id="unitBagianSelect" name="unitBagianSelect" required><option value="">-- Pilih Unit / Bagian --</option><option value="Bagian Administrasi dan Umum">Bagian Administrasi dan Umum</option><option value="Bagian Keuangan">Bagian Keuangan</option><option value="Bagian Program dan Pelaporan">Bagian Program dan Pelaporan</option><option value="Bidang Pelayanan Medik">Bidang Pelayanan Medik</option><option value="Bidang Keperawatan">Bidang Keperawatan</option><option value="Bidang Pelayanan Penunjang">Bidang Pelayanan Penunjang</option><option value="Lainnya">Lainnya</option></select></div><div class="form-group" id="unitBagianLainnyaContainer" style="display: none;"><label for="unitBagianLainnya">Sebutkan Unit / Bagian Lainnya</label><input type="text" id="unitBagianLainnya" name="unitBagianLainnya"></div><div class="form-group"><label for="emailPeminjam">Email (Opsional)</label><input type="email" id="emailPeminjam" name="emailPeminjam" placeholder="Untuk notifikasi status booking"></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
             
-            // --- MODIFIKASI: Event listener untuk dropdown Unit/Bagian ---
             const unitBagianSelect = document.getElementById('unitBagianSelect');
             const unitBagianLainnyaContainer = document.getElementById('unitBagianLainnyaContainer');
             const unitBagianLainnyaInput = document.getElementById('unitBagianLainnya');
@@ -234,62 +236,25 @@
             });
         }
         
-        // --- FUNGSI EMAIL NOTIFIKASI (UNTUK ADMIN) ---
         function sendAdminNotificationEmail(bookingData) {
             const SERVICE_ID = "service_h3pw21b";
             const TEMPLATE_ID_ADMIN = "template_rv13z6g";
-
-            const templateParams = {
-                to_email: "comsrp@gmail.com",
-                ruangan: bookingData.namaRuangan,
-                peminjam: bookingData.namaPeminjam,
-                unit_bagian: bookingData.unitBagian,
-                mulai: `${bookingData.tanggalMulai} ${bookingData.waktuMulai}`,
-                selesai: `${bookingData.tanggalSelesai} ${bookingData.waktuSelesai}`,
-                keperluan: bookingData.keperluan
-            };
-
-            emailjs.send(SERVICE_ID, TEMPLATE_ID_ADMIN, templateParams)
-                .then(response => console.log('Notifikasi admin berhasil terkirim!', response.status, response.text))
-                .catch(error => console.error('Gagal mengirim notifikasi admin:', error));
+            const templateParams = { to_email: "comsrp@gmail.com", ruangan: bookingData.namaRuangan, peminjam: bookingData.namaPeminjam, unit_bagian: bookingData.unitBagian, mulai: `${bookingData.tanggalMulai} ${bookingData.waktuMulai}`, selesai: `${bookingData.tanggalSelesai} ${bookingData.waktuSelesai}`, keperluan: bookingData.keperluan };
+            emailjs.send(SERVICE_ID, TEMPLATE_ID_ADMIN, templateParams).then(response => console.log('Notifikasi admin berhasil terkirim!', response.status, response.text)).catch(error => console.error('Gagal mengirim notifikasi admin:', error));
         }
 
-        // --- FUNGSI EMAIL KONFIRMASI (UNTUK USER) ---
         function sendUserConfirmationEmail(bookingData) {
             const SERVICE_ID = "service_h3pw21b";
             const TEMPLATE_ID_USER = "template_y7i1rb7";
-
-             const templateParams = {
-                email_penerima: bookingData.emailPeminjam, // DIUBAH untuk konsistensi
-                peminjam: bookingData.namaPeminjam,
-                ruangan: bookingData.namaRuangan,
-                mulai: `${bookingData.tanggalMulai} ${bookingData.waktuMulai}`,
-                keperluan: bookingData.keperluan,
-                status: "Telah Diterima (Menunggu Approval)"
-            };
-
-            emailjs.send(SERVICE_ID, TEMPLATE_ID_USER, templateParams)
-                .then(response => console.log('Email konfirmasi pengguna berhasil terkirim!', response.status, response.text))
-                .catch(error => console.error('Gagal mengirim konfirmasi pengguna:', error));
+             const templateParams = { email_penerima: bookingData.emailPeminjam, peminjam: bookingData.namaPeminjam, ruangan: bookingData.namaRuangan, mulai: `${bookingData.tanggalMulai} ${bookingData.waktuMulai}`, keperluan: bookingData.keperluan, status: "Telah Diterima (Menunggu Approval)" };
+            emailjs.send(SERVICE_ID, TEMPLATE_ID_USER, templateParams).then(response => console.log('Email konfirmasi pengguna berhasil terkirim!', response.status, response.text)).catch(error => console.error('Gagal mengirim konfirmasi pengguna:', error));
         }
         
-        // --- FUNGSI EMAIL UPDATE STATUS (UNTUK USER DARI ADMIN) ---
         function sendUserUpdateEmail(emailDetails) {
             const SERVICE_ID = "service_h3pw21b";
             const TEMPLATE_ID_UPDATE = "template_y7i1rb7"; 
-
-            const templateParams = {
-                email_penerima: emailDetails.email_penerima, // DIUBAH untuk konsistensi
-                peminjam: emailDetails.peminjam,
-                status: emailDetails.status,
-                ruangan: emailDetails.ruangan,
-                keperluan: emailDetails.keperluan,
-                mulai: emailDetails.mulai
-            };
-
-            emailjs.send(SERVICE_ID, TEMPLATE_ID_UPDATE, templateParams)
-                .then(response => console.log('Email update status berhasil terkirim!', response.status, response.text))
-                .catch(error => console.error('Gagal mengirim update status:', error));
+            const templateParams = { email_penerima: emailDetails.email_penerima, peminjam: emailDetails.peminjam, status: emailDetails.status, ruangan: emailDetails.ruangan, keperluan: emailDetails.keperluan, mulai: emailDetails.mulai };
+            emailjs.send(SERVICE_ID, TEMPLATE_ID_UPDATE, templateParams).then(response => console.log('Email update status berhasil terkirim!', response.status, response.text)).catch(error => console.error('Gagal mengirim update status:', error));
         }
 
 
@@ -310,7 +275,6 @@
             
             const formData = new FormData(bookingForm);
             
-            // --- MODIFIKASI: Menentukan nilai Unit/Bagian ---
             let unitBagian;
             const unitBagianPilihan = formData.get('unitBagianSelect');
             if (unitBagianPilihan === 'Lainnya') {
@@ -336,7 +300,6 @@
                 if (result.status === 'success') { 
                     showModal(result.message); 
                     bookingForm.reset();
-                    // --- MODIFIKASI: Reset form state secara manual ---
                     document.getElementById('unitBagianLainnyaContainer').style.display = 'none';
                     document.getElementById('unitBagianLainnya').required = false;
 
@@ -365,6 +328,7 @@
             adminLoginBtn.addEventListener('click', handleAdminLogin);
             adminPasswordInput.addEventListener('keyup', e => e.key === 'Enter' && handleAdminLogin());
             refreshAdminBtn.addEventListener('click', fetchAdminData);
+            deleteOldDataBtn.addEventListener('click', handleDeleteOldData);
         }
         
         async function fetchAdminData() {
@@ -404,6 +368,10 @@
         function renderAdminList(data) {
             bookingList.innerHTML = '';
             data.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
+            if (data.length === 0) {
+                bookingList.innerHTML = '<p style="text-align: center; opacity: 0.7;">Tidak ada data pengajuan.</p>';
+                return;
+            }
             data.forEach(booking => {
                 const item = document.createElement('li');
                 item.className = 'admin-booking-item';
@@ -425,6 +393,39 @@
             });
             bookingList.addEventListener('click', handleAdminAction);
         }
+        
+        async function handleDeleteOldData() {
+            const confirmed = await showConfirm('Anda yakin ingin menghapus semua data booking yang jadwalnya sudah lewat? Tindakan ini tidak dapat diurungkan.');
+            if (!confirmed) return;
+
+            if (!currentAdminPassword) {
+                showModal('Sesi admin tidak valid. Silakan refresh dan login kembali.', 'error');
+                return;
+            }
+
+            const button = document.getElementById('deleteOldDataBtn');
+            button.disabled = true;
+            button.textContent = 'Menghapus...';
+
+            const payload = {
+                action: 'deleteOldBookings',
+                password: currentAdminPassword
+            };
+
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+                showModal(result.message);
+                await fetchAdminData(); // Refresh list after deleting
+            } catch (error) {
+                showModal(`Gagal: ${error.message}`, 'error');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Hapus Data Lama';
+            }
+        }
+
         async function handleAdminAction(e) {
             const button = e.target;
             const password = currentAdminPassword;
@@ -437,14 +438,7 @@
 
                 const userEmail = button.dataset.email;
                 if (userEmail) {
-                    const emailDetails = {
-                        email_penerima: userEmail, // DIUBAH untuk konsistensi
-                        peminjam: button.dataset.peminjam,
-                        status: payload.newStatus,
-                        ruangan: button.dataset.ruangan,
-                        keperluan: button.dataset.keperluan,
-                        mulai: button.dataset.mulai
-                    };
+                    const emailDetails = { email_penerima: userEmail, peminjam: button.dataset.peminjam, status: payload.newStatus, ruangan: button.dataset.ruangan, keperluan: button.dataset.keperluan, mulai: button.dataset.mulai };
                     sendUserUpdateEmail(emailDetails);
                 }
 
