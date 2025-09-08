@@ -154,9 +154,40 @@
             document.body.className = 'user-view-bg';
             userSection.style.display = 'block';
             adminSection.style.display = 'none';
-            // MENAMBAHKAN KOLOM EMAIL DI FORMULIR
-            bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="Gajah Mada">Gajah Mada</option><option value="Ronggolawe">Ronggolawe</option><option value="Aryo Tejo">Aryo Tejo</option><option value="Diponegoro">Diponegoro</option><option value="Komite Keperawatan">Komite Keperawatan</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required></div><div class="form-group"><label for="unitBagian">Unit / Bagian</label><input type="text" id="unitBagian" name="unitBagian" required></div><div class="form-group"><label for="emailPeminjam">Email (Opsional)</label><input type="email" id="emailPeminjam" name="emailPeminjam" placeholder="Untuk notifikasi status booking"></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
-            bookingForm.addEventListener('submit', handleUserSubmit);
+            // --- MODIFIKASI: Mengganti input Unit/Bagian dengan dropdown ---
+            bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="Gajah Mada">Gajah Mada</option><option value="Ronggolawe">Ronggolawe</option><option value="Aryo Tejo">Aryo Tejo</option><option value="Diponegoro">Diponegoro</option><option value="Komite Keperawatan">Komite Keperawatan</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required></div><div class="form-group"><label for="unitBagianSelect">Unit / Bagian</label><select id="unitBagianSelect" name="unitBagianSelect" required><option value="">-- Pilih Unit / Bagian --</option><option value="Bagian Administrasi dan Umum">Bagian Administrasi dan Umum</option><option value="Bagian Keuangan">Bagian Keuangan</option><option value="Bagian Program dan Pelaporan">Bagian Program dan Pelaporan</option><option value="Bidang Pelayanan Medik">Bidang Pelayanan Medik</option><option value="Bidang Keperawatan">Bidang Keperawatan</option><option value="Bidang Pelayanan Penunjang">Bidang Pelayanan Penunjang</option><option value="Lainnya">Lainnya</option></select></div><div class="form-group" id="unitBagianLainnyaContainer" style="display: none;"><label for="unitBagianLainnya">Sebutkan Unit / Bagian Lainnya</label><input type="text" id="unitBagianLainnya" name="unitBagianLainnya"></div><div class="form-group"><label for="emailPeminjam">Email (Opsional)</label><input type="email" id="emailPeminjam" name="emailPeminjam" placeholder="Untuk notifikasi status booking"></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
+            
+            // --- MODIFIKASI: Event listener untuk dropdown Unit/Bagian ---
+            const unitBagianSelect = document.getElementById('unitBagianSelect');
+            const unitBagianLainnyaContainer = document.getElementById('unitBagianLainnyaContainer');
+            const unitBagianLainnyaInput = document.getElementById('unitBagianLainnya');
+
+            unitBagianSelect.addEventListener('change', () => {
+                if (unitBagianSelect.value === 'Lainnya') {
+                    unitBagianLainnyaContainer.style.display = 'block';
+                    unitBagianLainnyaInput.required = true;
+                } else {
+                    unitBagianLainnyaContainer.style.display = 'none';
+                    unitBagianLainnyaInput.required = false;
+                    unitBagianLainnyaInput.value = '';
+                }
+            });
+            
+            const tanggalMulaiInput = document.getElementById('tanggalMulai');
+            const tanggalSelesaiInput = document.getElementById('tanggalSelesai');
+            const timezoneOffset = (new Date()).getTimezoneOffset() * 60000;
+            const now = new Date(Date.now() - timezoneOffset);
+            const end = new Date(now.getTime() + 60 * 60 * 1000);
+            const nowFormatted = now.toISOString().slice(0, 16);
+            const endFormatted = end.toISOString().slice(0, 16);
+            tanggalMulaiInput.value = nowFormatted;
+            tanggalMulaiInput.min = nowFormatted;
+            tanggalSelesaiInput.value = endFormatted;
+            
+            if (!bookingForm.hasSubmitListener) {
+                bookingForm.addEventListener('submit', handleUserSubmit);
+                bookingForm.hasSubmitListener = true;
+            }
             refreshUserBtn.addEventListener('click', fetchUserSchedule);
             fetchUserSchedule();
         }
@@ -247,7 +278,6 @@
             const SERVICE_ID = "service_h3pw21b";
             const TEMPLATE_ID_UPDATE = "template_y7i1rb7"; 
 
-            // Nama parameter di sini HARUS SAMA dengan yang ada di sendUserConfirmationEmail
             const templateParams = {
                 email_penerima: emailDetails.email_penerima, // DIUBAH untuk konsistensi
                 peminjam: emailDetails.peminjam,
@@ -266,15 +296,34 @@
         async function handleUserSubmit(e) {
             e.preventDefault();
             const submitButton = document.getElementById('submitButton');
-            const startDateTime = new Date(document.getElementById('tanggalMulai').value), endDateTime = new Date(document.getElementById('tanggalSelesai').value);
+            const startDateTime = new Date(document.getElementById('tanggalMulai').value);
+            const endDateTime = new Date(document.getElementById('tanggalSelesai').value);
+            const now = new Date();
+            now.setSeconds(0, 0);
+
+            if (startDateTime < now) {
+                showModal('Waktu mulai tidak boleh kurang dari waktu saat ini. Silakan perbaiki waktu.', 'error');
+                return;
+            }
             if (endDateTime <= startDateTime) { showModal('Waktu selesai harus setelah waktu mulai.', 'error'); return; }
             submitButton.disabled = true; submitButton.textContent = 'Mengirim...';
+            
             const formData = new FormData(bookingForm);
+            
+            // --- MODIFIKASI: Menentukan nilai Unit/Bagian ---
+            let unitBagian;
+            const unitBagianPilihan = formData.get('unitBagianSelect');
+            if (unitBagianPilihan === 'Lainnya') {
+                unitBagian = formData.get('unitBagianLainnya');
+            } else {
+                unitBagian = unitBagianPilihan;
+            }
+
             const bookingData = { 
                 namaRuangan: formData.get('namaRuangan'), 
                 namaPeminjam: formData.get('namaPeminjam'), 
-                unitBagian: formData.get('unitBagian'), 
-                emailPeminjam: formData.get('emailPeminjam'), // Mengambil data email
+                unitBagian: unitBagian, 
+                emailPeminjam: formData.get('emailPeminjam'),
                 tanggalMulai: startDateTime.toISOString().split('T')[0], 
                 waktuMulai: startDateTime.toTimeString().split(' ')[0].substring(0,5), 
                 tanggalSelesai: endDateTime.toISOString().split('T')[0], 
@@ -286,13 +335,23 @@
                 const result = await response.json();
                 if (result.status === 'success') { 
                     showModal(result.message); 
-                    bookingForm.reset(); 
-                    fetchUserSchedule();
+                    bookingForm.reset();
+                    // --- MODIFIKASI: Reset form state secara manual ---
+                    document.getElementById('unitBagianLainnyaContainer').style.display = 'none';
+                    document.getElementById('unitBagianLainnya').required = false;
+
+                    const tanggalMulaiInput = document.getElementById('tanggalMulai');
+                    const tanggalSelesaiInput = document.getElementById('tanggalSelesai');
+                    const timezoneOffset = (new Date()).getTimezoneOffset() * 60000;
+                    const now = new Date(Date.now() - timezoneOffset);
+                    const end = new Date(now.getTime() + 60 * 60 * 1000);
+                    const nowFormatted = now.toISOString().slice(0, 16);
+                    const endFormatted = end.toISOString().slice(0, 16);
+                    tanggalMulaiInput.value = nowFormatted;
+                    tanggalMulaiInput.min = nowFormatted;
+                    tanggalSelesaiInput.value = endFormatted;
                     
-                    sendAdminNotificationEmail(bookingData);
-                    if (bookingData.emailPeminjam) {
-                        sendUserConfirmationEmail(bookingData);
-                    }
+                    fetchUserSchedule();
                 } 
                 else { showModal(result.message, 'error'); }
             } catch (error) { showModal('Gagal mengirim booking. Cek koneksi internet.', 'error'); } 
