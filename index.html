@@ -158,7 +158,7 @@
             document.body.className = 'user-view-bg';
             userSection.style.display = 'block';
             adminSection.style.display = 'none';
-            bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="Gajah Mada">Gajah Mada</option><option value="Ronggolawe">Ronggolawe</option><option value="Aryo Tejo">Aryo Tejo</option><option value="Diponegoro">Diponegoro</option><option value="Komite Keperawatan">Komite Keperawatan</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required></div><div class="form-group"><label for="unitBagianSelect">Unit / Bagian</label><select id="unitBagianSelect" name="unitBagianSelect" required><option value="">-- Pilih Unit / Bagian --</option><option value="Bagian Administrasi dan Umum">Bagian Administrasi dan Umum</option><option value="Bagian Keuangan">Bagian Keuangan</option><option value="Bagian Program dan Pelaporan">Bagian Program dan Pelaporan</option><option value="Bidang Pelayanan Medik">Bidang Pelayanan Medik</option><option value="Bidang Keperawatan">Bidang Keperawatan</option><option value="Bidang Pelayanan Penunjang">Bidang Pelayanan Penunjang</option><option value="Lainnya">Lainnya</option></select></div><div class="form-group" id="unitBagianLainnyaContainer" style="display: none;"><label for="unitBagianLainnya">Sebutkan Unit / Bagian Lainnya</label><input type="text" id="unitBagianLainnya" name="unitBagianLainnya"></div><div class="form-group"><label for="emailPeminjam">Email (Opsional)</label><input type="email" id="emailPeminjam" name="emailPeminjam" placeholder="Untuk notifikasi status booking"></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
+            bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="Gajah Mada">Gajah Mada</option><option value="Ronggolawe">Ronggolawe</option><option value="Aryo Tejo">Aryo Tejo</option><option value="Diponegoro">Diponegoro</option><option value="Komite Keperawatan">Komite Keperawatan</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required></div><div class="form-group"><label for="unitBagianSelect">Unit / Bagian</label><select id="unitBagianSelect" name="unitBagianSelect" required><option value="">-- Pilih Unit / Bagian --</option><option value="Bagian Administrasi dan Umum">Bagian Administrasi dan Umum</option><option value="Bagian Keuangan">Bagian Keuangan</option><option value="Bagian Program dan Pelaporan">Bagian Program dan Pelaporan</option><option value="Bidang Pelayanan Medik">Bidang Pelayanan Medik</option><option value="Bidang Keperawatan">Bidang Keperawatan</option><option value="Bidang Pelayanan Penunjang">Bidang Pelayanan Penunjang</option><option value="Lainnya">Lainnya</option></select></div><div class="form-group" id="unitBagianLainnyaContainer" style="display: none;"><label for="unitBagianLainnya">Sebutkan Unit / Bagian Lainnya</label><input type="text" id="unitBagianLainnya" name="unitBagianLainnya"></div><div class="form-group"><label for="emailPeminjam">Email (Opsional)</label><input type="email" id="emailPeminjam" name="emailPeminjam" placeholder="Untuk notifikasi status booking"></div><div class="form-group"><label for="nomorWa">Nomor WA (Opsional)</label><input type="tel" id="nomorWa" name="nomorWa" placeholder="Contoh: 081234567890"></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
             
             const unitBagianSelect = document.getElementById('unitBagianSelect');
             const unitBagianLainnyaContainer = document.getElementById('unitBagianLainnyaContainer');
@@ -288,6 +288,7 @@
                 namaPeminjam: formData.get('namaPeminjam'), 
                 unitBagian: unitBagian, 
                 emailPeminjam: formData.get('emailPeminjam'),
+                nomorWa: formData.get('nomorWa'),
                 tanggalMulai: startDateTime.toISOString().split('T')[0], 
                 waktuMulai: startDateTime.toTimeString().split(' ')[0].substring(0,5), 
                 tanggalSelesai: endDateTime.toISOString().split('T')[0], 
@@ -377,6 +378,7 @@
                 item.className = 'admin-booking-item';
                 item.dataset.status = booking.Status;
                 const userEmail = booking['Email Peminjam'] || ''; 
+                const userWa = booking['Nomor WA'] || ''; 
                 const waktuMulaiLengkap = `${booking['Tanggal Mulai']} ${booking['Waktu Mulai']}`;
                 const waktuSelesaiLengkap = `${booking['Tanggal Selesai']} ${booking['Waktu Selesai']}`;
                 let actionsHtml = '<div class="actions">';
@@ -388,7 +390,7 @@
                     actionsHtml += `<button class="btn btn-reject" ${buttonDataAttrs} data-status="Ditolak">Tolak</button>`;
                 }
                 actionsHtml += `<button class="btn btn-delete" data-id="${booking['ID Booking']}">Hapus</button></div>`;
-                item.innerHTML = `<div class="item-header"><h3>${booking.Keperluan}</h3><span class="status">${booking.Status}</span></div><p><strong>Ruangan:</strong> ${booking['Nama Ruangan']}</p><p><strong>Peminjam:</strong> ${booking['Nama Peminjam']} (${booking['Unit/Bagian']})</p><p><strong>Email:</strong> ${userEmail || 'Tidak ada'}</p><p><strong>Waktu:</strong> ${waktuMulaiLengkap} s/d ${waktuSelesaiLengkap}</p>${actionsHtml}`;
+                item.innerHTML = `<div class="item-header"><h3>${booking.Keperluan}</h3><span class="status">${booking.Status}</span></div><p><strong>Ruangan:</strong> ${booking['Nama Ruangan']}</p><p><strong>Peminjam:</strong> ${booking['Nama Peminjam']} (${booking['Unit/Bagian']})</p><p><strong>Email:</strong> ${userEmail || 'Tidak ada'}</p><p><strong>No. WA:</strong> ${userWa || 'Tidak ada'}</p><p><strong>Waktu:</strong> ${waktuMulaiLengkap} s/d ${waktuSelesaiLengkap}</p>${actionsHtml}`;
                 bookingList.appendChild(item);
             });
             bookingList.addEventListener('click', handleAdminAction);
@@ -466,4 +468,3 @@
     </script>
 </body>
 </html>
-
