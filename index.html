@@ -61,7 +61,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- Tampilan User -->
+        <!-- User View -->
         <div id="user-section">
             <header><h1>Sistem Booking Ruang Rapat</h1><p>RSUD dr. R. Koesma Tuban</p></header>
             <div class="user-content">
@@ -78,7 +78,7 @@
                 </div>
             </div>
         </div>
-        <!-- Tampilan Admin -->
+        <!-- Admin View -->
         <div id="admin-section">
             <header><h1>Halaman Admin Approval</h1></header>
             <div id="admin-login-view" class="login-form">
@@ -106,14 +106,6 @@
             <div id="modalButtons" class="modal-buttons"></div>
         </div>
     </div>
-
-    <!-- Script untuk EmailJS -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <script type="text/javascript">
-      (function(){
-         emailjs.init({ publicKey: "KPYaaOC7926NTqP8a" });
-      })();
-    </script>
 
     <script>
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRSj_mjQ15k0W_5C640ft3QCsCrhjTSM4Pl9jG1pW6Hw3vMTj0DVSmgh4JeALWUw/exec';
@@ -158,7 +150,7 @@
             document.body.className = 'user-view-bg';
             userSection.style.display = 'block';
             adminSection.style.display = 'none';
-            bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="Gajah Mada">Gajah Mada</option><option value="Ronggolawe">Ronggolawe</option><option value="Aryo Tejo">Aryo Tejo</option><option value="Diponegoro">Diponegoro</option><option value="Komite Keperawatan">Komite Keperawatan</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required></div><div class="form-group"><label for="unitBagianSelect">Unit / Bagian</label><select id="unitBagianSelect" name="unitBagianSelect" required><option value="">-- Pilih Unit / Bagian --</option><option value="Bagian Administrasi dan Umum">Bagian Administrasi dan Umum</option><option value="Bagian Keuangan">Bagian Keuangan</option><option value="Bagian Program dan Pelaporan">Bagian Program dan Pelaporan</option><option value="Bidang Pelayanan Medik">Bidang Pelayanan Medik</option><option value="Bidang Keperawatan">Bidang Keperawatan</option><option value="Bidang Pelayanan Penunjang">Bidang Pelayanan Penunjang</option><option value="Lainnya">Lainnya</option></select></div><div class="form-group" id="unitBagianLainnyaContainer" style="display: none;"><label for="unitBagianLainnya">Sebutkan Unit / Bagian Lainnya</label><input type="text" id="unitBagianLainnya" name="unitBagianLainnya"></div><div class="form-group"><label for="emailPeminjam">Email (Opsional)</label><input type="email" id="emailPeminjam" name="emailPeminjam" placeholder="Untuk notifikasi status booking"></div><div class="form-group"><label for="nomorWa">Nomor WA (Opsional)</label><input type="tel" id="nomorWa" name="nomorWa" placeholder="Contoh: 081234567890"></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
+            bookingForm.innerHTML = `<div class="form-group"><label for="namaRuangan">Pilih Ruangan</label><select id="namaRuangan" name="namaRuangan" required><option value="Gajah Mada">Gajah Mada</option><option value="Ronggolawe">Ronggolawe</option><option value="Aryo Tejo">Aryo Tejo</option><option value="Diponegoro">Diponegoro</option><option value="Komite Keperawatan">Komite Keperawatan</option></select></div><div class="form-group"><label for="namaPeminjam">Nama Peminjam</label><input type="text" id="namaPeminjam" name="namaPeminjam" required></div><div class="form-group"><label for="unitBagianSelect">Unit / Bagian</label><select id="unitBagianSelect" name="unitBagianSelect" required><option value="">-- Pilih Unit / Bagian --</option><option value="Bagian Administrasi dan Umum">Bagian Administrasi dan Umum</option><option value="Bagian Keuangan">Bagian Keuangan</option><option value="Bagian Program dan Pelaporan">Bagian Program dan Pelaporan</option><option value="Bidang Pelayanan Medik">Bidang Pelayanan Medik</option><option value="Bidang Keperawatan">Bidang Keperawatan</option><option value="Bidang Pelayanan Penunjang">Bidang Pelayanan Penunjang</option><option value="Lainnya">Lainnya</option></select></div><div class="form-group" id="unitBagianLainnyaContainer" style="display: none;"><label for="unitBagianLainnya">Sebutkan Unit / Bagian Lainnya</label><input type="text" id="unitBagianLainnya" name="unitBagianLainnya"></div><div class="form-group"><label for="nomorWa">Nomor WA (Opsional)</label><input type="tel" id="nomorWa" name="nomorWa" placeholder="Contoh: 0812-3456-7890" inputmode="tel"></div><div class="form-group"><label for="tanggalMulai">Tanggal & Waktu Mulai</label><input type="datetime-local" id="tanggalMulai" name="tanggalMulai" required></div><div class="form-group"><label for="tanggalSelesai">Tanggal & Waktu Selesai</label><input type="datetime-local" id="tanggalSelesai" name="tanggalSelesai" required></div><div class="form-group"><label for="keperluan">Keperluan</label><textarea id="keperluan" name="keperluan" required></textarea></div><button type="submit" class="btn-submit" id="submitButton">Kirim Permintaan Booking</button>`;
             
             const unitBagianSelect = document.getElementById('unitBagianSelect');
             const unitBagianLainnyaContainer = document.getElementById('unitBagianLainnyaContainer');
@@ -236,28 +228,6 @@
             });
         }
         
-        function sendAdminNotificationEmail(bookingData) {
-            const SERVICE_ID = "service_h3pw21b";
-            const TEMPLATE_ID_ADMIN = "template_rv13z6g";
-            const templateParams = { to_email: "comsrp@gmail.com", ruangan: bookingData.namaRuangan, peminjam: bookingData.namaPeminjam, unit_bagian: bookingData.unitBagian, mulai: `${bookingData.tanggalMulai} ${bookingData.waktuMulai}`, selesai: `${bookingData.tanggalSelesai} ${bookingData.waktuSelesai}`, keperluan: bookingData.keperluan };
-            emailjs.send(SERVICE_ID, TEMPLATE_ID_ADMIN, templateParams).then(response => console.log('Notifikasi admin berhasil terkirim!', response.status, response.text)).catch(error => console.error('Gagal mengirim notifikasi admin:', error));
-        }
-
-        function sendUserConfirmationEmail(bookingData) {
-            const SERVICE_ID = "service_h3pw21b";
-            const TEMPLATE_ID_USER = "template_y7i1rb7";
-             const templateParams = { email_penerima: bookingData.emailPeminjam, peminjam: bookingData.namaPeminjam, ruangan: bookingData.namaRuangan, mulai: `${bookingData.tanggalMulai} ${bookingData.waktuMulai}`, keperluan: bookingData.keperluan, status: "Telah Diterima (Menunggu Approval)" };
-            emailjs.send(SERVICE_ID, TEMPLATE_ID_USER, templateParams).then(response => console.log('Email konfirmasi pengguna berhasil terkirim!', response.status, response.text)).catch(error => console.error('Gagal mengirim konfirmasi pengguna:', error));
-        }
-        
-        function sendUserUpdateEmail(emailDetails) {
-            const SERVICE_ID = "service_h3pw21b";
-            const TEMPLATE_ID_UPDATE = "template_y7i1rb7"; 
-            const templateParams = { email_penerima: emailDetails.email_penerima, peminjam: emailDetails.peminjam, status: emailDetails.status, ruangan: emailDetails.ruangan, keperluan: emailDetails.keperluan, mulai: emailDetails.mulai };
-            emailjs.send(SERVICE_ID, TEMPLATE_ID_UPDATE, templateParams).then(response => console.log('Email update status berhasil terkirim!', response.status, response.text)).catch(error => console.error('Gagal mengirim update status:', error));
-        }
-
-
         async function handleUserSubmit(e) {
             e.preventDefault();
             const submitButton = document.getElementById('submitButton');
@@ -287,7 +257,6 @@
                 namaRuangan: formData.get('namaRuangan'), 
                 namaPeminjam: formData.get('namaPeminjam'), 
                 unitBagian: unitBagian, 
-                emailPeminjam: formData.get('emailPeminjam'),
                 nomorWa: formData.get('nomorWa'),
                 tanggalMulai: startDateTime.toISOString().split('T')[0], 
                 waktuMulai: startDateTime.toTimeString().split(' ')[0].substring(0,5), 
@@ -377,20 +346,19 @@
                 const item = document.createElement('li');
                 item.className = 'admin-booking-item';
                 item.dataset.status = booking.Status;
-                const userEmail = booking['Email Peminjam'] || ''; 
                 const userWa = booking['Nomor WA'] || ''; 
                 const waktuMulaiLengkap = `${booking['Tanggal Mulai']} ${booking['Waktu Mulai']}`;
                 const waktuSelesaiLengkap = `${booking['Tanggal Selesai']} ${booking['Waktu Selesai']}`;
                 let actionsHtml = '<div class="actions">';
 
-                const buttonDataAttrs = `data-id="${booking['ID Booking']}" data-email="${userEmail}" data-keperluan="${booking.Keperluan}" data-ruangan="${booking['Nama Ruangan']}" data-peminjam="${booking['Nama Peminjam']}" data-mulai="${waktuMulaiLengkap}"`;
+                const buttonDataAttrs = `data-id="${booking['ID Booking']}" data-keperluan="${booking.Keperluan}" data-ruangan="${booking['Nama Ruangan']}" data-peminjam="${booking['Nama Peminjam']}" data-mulai="${waktuMulaiLengkap}"`;
 
                 if (booking.Status === 'Belum Disetujui') {
                     actionsHtml += `<button class="btn btn-approve" ${buttonDataAttrs} data-status="Disetujui">Setujui</button>`;
                     actionsHtml += `<button class="btn btn-reject" ${buttonDataAttrs} data-status="Ditolak">Tolak</button>`;
                 }
                 actionsHtml += `<button class="btn btn-delete" data-id="${booking['ID Booking']}">Hapus</button></div>`;
-                item.innerHTML = `<div class="item-header"><h3>${booking.Keperluan}</h3><span class="status">${booking.Status}</span></div><p><strong>Ruangan:</strong> ${booking['Nama Ruangan']}</p><p><strong>Peminjam:</strong> ${booking['Nama Peminjam']} (${booking['Unit/Bagian']})</p><p><strong>Email:</strong> ${userEmail || 'Tidak ada'}</p><p><strong>No. WA:</strong> ${userWa || 'Tidak ada'}</p><p><strong>Waktu:</strong> ${waktuMulaiLengkap} s/d ${waktuSelesaiLengkap}</p>${actionsHtml}`;
+                item.innerHTML = `<div class="item-header"><h3>${booking.Keperluan}</h3><span class="status">${booking.Status}</span></div><p><strong>Ruangan:</strong> ${booking['Nama Ruangan']}</p><p><strong>Peminjam:</strong> ${booking['Nama Peminjam']} (${booking['Unit/Bagian']})</p><p><strong>No. WA:</strong> ${userWa || 'Tidak ada'}</p><p><strong>Waktu:</strong> ${waktuMulaiLengkap} s/d ${waktuSelesaiLengkap}</p>${actionsHtml}`;
                 bookingList.appendChild(item);
             });
             bookingList.addEventListener('click', handleAdminAction);
@@ -437,13 +405,6 @@
             if (button.matches('.btn-approve') || button.matches('.btn-reject')) {
                 action = 'updateStatus';
                 payload.newStatus = button.dataset.status;
-
-                const userEmail = button.dataset.email;
-                if (userEmail) {
-                    const emailDetails = { email_penerima: userEmail, peminjam: button.dataset.peminjam, status: payload.newStatus, ruangan: button.dataset.ruangan, keperluan: button.dataset.keperluan, mulai: button.dataset.mulai };
-                    sendUserUpdateEmail(emailDetails);
-                }
-
             } else if (button.matches('.btn-delete')) {
                 const confirmed = await showConfirm('Apakah Anda yakin ingin menghapus pengajuan ini secara permanen?');
                 if (!confirmed) return;
@@ -468,3 +429,4 @@
     </script>
 </body>
 </html>
+
